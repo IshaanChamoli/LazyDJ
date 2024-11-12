@@ -75,7 +75,7 @@ const SearchParamsComponent = () => {
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-16">
+          <div className="centered-container bg-[#121212] text-white">
             <div className="text-center space-y-6">
               <h1 className="text-7xl font-bold">LazyDJ</h1>
               <p className="text-[#1DB954] text-2xl font-medium">No Effort, Just Vibes</p>
@@ -83,7 +83,7 @@ const SearchParamsComponent = () => {
                 Your AI-powered playlist creator for Spotify
               </p>
             </div>
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 mt-8">
               <a
                 href="/api/auth/login"
                 className="inline-block bg-[#1DB954] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#1ed760] transition-all transform hover:scale-105 duration-200"

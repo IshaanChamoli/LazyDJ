@@ -295,7 +295,7 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               value={prompt}

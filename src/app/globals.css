@@ -60,4 +60,22 @@ body {
     min-height: 100dvh;
     overflow: hidden;
   }
+
+  /* Ensure mobile-friendly styles for playlist actions */
+  .mobile-playlist-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+/* Add these styles to ensure centering and no scrolling */
+.centered-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
 }
