@@ -20,11 +20,15 @@ export async function GET() {
     'playlist-modify-private'
   ].join(' ');
 
+  const redirectUri = process.env.NODE_ENV === 'production'
+    ? 'https://your-project-name.vercel.app/api/auth/callback/spotify'
+    : 'http://localhost:3000/api/auth/callback/spotify';
+
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: process.env.SPOTIFY_CLIENT_ID!,
     scope,
-    redirect_uri: process.env.SPOTIFY_REDIRECT_URI!,
+    redirect_uri: redirectUri,
     state
   });
 
