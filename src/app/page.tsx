@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PlaylistGenerator from './components/PlaylistGenerator';
 import { User } from './types/spotify';
+import Image from 'next/image';
 
-export default function Home() {
+// Separate the component that uses useSearchParams
+const SearchParamsComponent = () => {
   const [user, setUser] = useState<User | null>(null);
   const [hasCreatedPlaylist, setHasCreatedPlaylist] = useState(false);
   const searchParams = useSearchParams();
@@ -48,11 +50,14 @@ export default function Home() {
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
                 {user.images?.[0]?.url && (
-                  <img
-                    src={user.images[0].url}
-                    alt={user.display_name}
-                    className="w-8 h-8 rounded-full border-2 border-[#282828] shadow-lg"
-                  />
+                  <div className="relative w-8 h-8">
+                    <Image
+                      src={user.images[0].url}
+                      alt={user.display_name}
+                      fill
+                      className="rounded-full border-2 border-[#282828] shadow-lg object-cover"
+                    />
+                  </div>
                 )}
                 <h2 className="text-xl font-medium">Welcome, {user.display_name}!</h2>
               </div>
@@ -95,5 +100,20 @@ export default function Home() {
         )}
       </main>
     </div>
+  );
+}
+
+// Main page component with Suspense
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#121212] text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+        </div>
+      </div>
+    }>
+      <SearchParamsComponent />
+    </Suspense>
   );
 } 

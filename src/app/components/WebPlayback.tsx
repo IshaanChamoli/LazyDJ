@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 declare global {
   interface Window {
@@ -69,11 +70,14 @@ export default function WebPlayback({ accessToken }) {
     <div className="fixed bottom-0 left-0 right-0 bg-[#181818] border-t border-[#282828] p-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img 
-            src={current_track?.album.images[0].url} 
-            alt={current_track?.name}
-            className="w-14 h-14 rounded"
-          />
+          <div className="relative w-14 h-14">
+            <Image 
+              src={current_track?.album.images[0].url} 
+              alt={current_track?.name}
+              fill
+              className="rounded object-cover"
+            />
+          </div>
           <div>
             <div className="font-medium">{current_track?.name}</div>
             <div className="text-sm text-[#b3b3b3]">
