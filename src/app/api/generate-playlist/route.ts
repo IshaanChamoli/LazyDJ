@@ -83,7 +83,7 @@ export async function POST(request: Request) {
         model: "gpt-3.5-turbo",
         messages: [{
           role: "system",
-          content: "You are a music expert. Generate a list of exactly 25 songs that match the given description. Your response must be a valid JSON object with a 'songs' array containing exactly 25 songs. Use this exact format: {\"songs\": [{\"title\": \"song name\", \"artist\": \"artist name\"}, ...]}. Include exactly 25 songs in the array."
+          content: "You are a music expert. Generate a list of exactly 25 songs that match the given description taking into consideration the mood and feeling it conveys as well as the lyrics sometimes. Your response must be a valid JSON object with a 'songs' array containing exactly 25 songs. Use this exact format: {\"songs\": [{\"title\": \"song name\", \"artist\": \"artist name\"}, ...]}. Include exactly 25 songs in the array."
         }, {
           role: "user",
           content: prompt
