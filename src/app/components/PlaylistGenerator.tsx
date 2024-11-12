@@ -64,7 +64,15 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
         onPlaylistCreated();
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to generate playlist');
+      const funnyMessages = [
+        "Oops! Our DJ had too much coffee. Mind trying again?",
+        "Looks like our music-picking robot needs a reboot. Give it another shot!",
+        "The playlist generator is having a dance break. Care to try again?",
+        "Even AI DJs have off days! Let's give it another try.",
+        "Our musical algorithms are feeling a bit shy. How about another attempt?"
+      ];
+      const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+      setError(randomMessage);
     } finally {
       setIsLoading(false);
     }
