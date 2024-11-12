@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     clientId: process.env.SPOTIFY_CLIENT_ID,
     clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
     redirectUri: process.env.NODE_ENV === 'production'
-      ? 'https://your-project-name.vercel.app/api/auth/callback/spotify'
+      ? 'https://lazydj.vercel.app/api/auth/callback/spotify'
       : 'http://localhost:3000/api/auth/callback/spotify'
   });
 

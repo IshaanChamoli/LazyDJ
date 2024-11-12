@@ -21,7 +21,7 @@ export async function GET() {
   ].join(' ');
 
   const redirectUri = process.env.NODE_ENV === 'production'
-    ? 'https://your-project-name.vercel.app/api/auth/callback/spotify'
+    ? 'https://lazydj.vercel.app/api/auth/callback/spotify'
     : 'http://localhost:3000/api/auth/callback/spotify';
 
   const params = new URLSearchParams({
