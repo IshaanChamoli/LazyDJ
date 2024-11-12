@@ -59,7 +59,7 @@ export default function Home() {
               {!hasCreatedPlaylist && (
                 <div className="text-[#b3b3b3] space-y-2">
                   <p>Ready to create a personalized playlist?</p>
-                  <p>Just describe what you're looking for, and let AI do the magic.</p>
+                  <p>Just describe what you&apos;re looking for, and let AI do the magic.</p>
                 </div>
               )}
             </div>

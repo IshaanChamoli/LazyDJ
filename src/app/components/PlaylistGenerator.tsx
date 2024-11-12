@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PlaylistGeneratorProps, Track, Playlist } from '../types/spotify';
+import Image from 'next/image';
 
 interface PlaylistResponse {
   success: boolean;
@@ -133,11 +134,12 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
     return (
       <div className="w-full h-full grid grid-cols-2 grid-rows-2">
         {albumCovers.map((url, index) => (
-          <div key={`cover-${index}`} className="overflow-hidden">
-            <img 
+          <div key={`cover-${index}`} className="overflow-hidden relative w-full h-full">
+            <Image 
               src={url} 
               alt="Album cover"
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
         ))}
@@ -181,11 +183,14 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
             </span>
             <div className="flex items-center gap-4 min-w-0 text-left">
               {item.track.album?.images?.[0]?.url && (
-                <img 
-                  src={item.track.album.images[0].url} 
-                  alt={item.track.name}
-                  className="w-10 h-10 rounded shadow-lg flex-shrink-0"
-                />
+                <div className="relative w-10 h-10">
+                  <Image 
+                    src={item.track.album.images[0].url} 
+                    alt={item.track.name}
+                    fill
+                    className="rounded shadow-lg"
+                  />
+                </div>
               )}
               <div className="min-w-0 flex-1">
                 <div className="font-medium truncate group-hover:text-[#1DB954] transition-colors">
@@ -229,7 +234,7 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
             Create Another Playlist
           </button>
           <div className="text-[#b3b3b3] text-sm">
-            Don't like it?{' '}
+            Don&apos;t like it?{' '}
             <button
               onClick={handleDelete}
               className="text-white underline hover:text-[#1DB954] transition-colors"
