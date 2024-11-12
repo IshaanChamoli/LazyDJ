@@ -174,32 +174,34 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
     return (
       <div className="space-y-1">
         {/* Header row */}
-        <div className="grid grid-cols-[16px,1fr,minmax(120px,1fr)] gap-8 px-4 py-2 text-[#b3b3b3] text-sm border-b border-[#ffffff1a] mb-4">
+        <div className="grid grid-cols-[16px,40px,1fr] sm:grid-cols-[16px,40px,1fr,1fr] gap-4 sm:gap-8 px-4 py-2 text-[#b3b3b3] text-sm border-b border-[#ffffff1a] mb-4">
           <span className="text-right">#</span>
+          <span className="text-left">COVER</span>
           <span className="text-left">TITLE</span>
-          <span className="text-right">ALBUM</span>
+          <span className="hidden sm:block text-right">ALBUM</span>
         </div>
         
         {/* Track rows */}
         {playlist.tracks.items.map((item, index) => (
           <div 
             key={`${item.track.id}-${index}`}
-            className="grid grid-cols-[16px,1fr,minmax(120px,1fr)] gap-8 px-4 py-2 rounded-md group hover:bg-[#ffffff1a] transition-colors"
+            className="grid grid-cols-[16px,40px,1fr] sm:grid-cols-[16px,40px,1fr,1fr] gap-4 sm:gap-8 px-4 py-2 rounded-md group hover:bg-[#ffffff1a] transition-colors"
           >
             <span className="text-[#b3b3b3] group-hover:text-white text-sm text-right">
               {index + 1}
             </span>
-            <div className="flex items-center gap-4 min-w-0 text-left">
+            <div className="w-10 h-10">
               {item.track.album?.images?.[0]?.url && (
-                <div className="relative w-10 h-10">
-                  <Image 
-                    src={item.track.album.images[0].url} 
-                    alt={item.track.name}
-                    fill
-                    className="rounded shadow-lg"
-                  />
-                </div>
+                <Image 
+                  src={item.track.album.images[0].url} 
+                  alt={item.track.name}
+                  width={40}
+                  height={40}
+                  className="rounded shadow-lg"
+                />
               )}
+            </div>
+            <div className="flex items-center gap-4 min-w-0 text-left">
               <div className="min-w-0 flex-1">
                 <div className="font-medium truncate group-hover:text-[#1DB954] transition-colors">
                   {item.track.name}
@@ -209,7 +211,7 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
                 </div>
               </div>
             </div>
-            <div className="text-sm text-[#b3b3b3] group-hover:text-white truncate text-right">
+            <div className="hidden sm:block text-sm text-[#b3b3b3] group-hover:text-white truncate text-right">
               {item.track.album?.name}
             </div>
           </div>
@@ -263,20 +265,20 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
           {playlist && (
             <div className="bg-gradient-to-b from-[#282828] to-[#121212] rounded-lg overflow-hidden">
               <div className="bg-gradient-to-b from-[#3E3E3E] to-[#282828] p-8">
-                <div className="flex items-start gap-6">
+                <div className="flex flex-col sm:flex-row items-start gap-6">
                   {/* Updated Playlist Cover */}
-                  <div className="w-48 h-48 flex-shrink-0 bg-[#282828] shadow-lg rounded overflow-hidden">
+                  <div className="w-full sm:w-48 h-48 flex-shrink-0 bg-[#282828] shadow-lg rounded overflow-hidden">
                     {renderPlaylistCover(playlist.tracks.items)}
                   </div>
 
                   {/* Playlist Info */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 mt-4 sm:mt-0 text-center sm:text-left">
                     <span className="text-sm text-[#b3b3b3] font-medium uppercase">Playlist</span>
                     <h2 className="text-4xl font-bold mt-2 mb-4">{playlist?.name}</h2>
                     <p className="text-sm text-[#b3b3b3] whitespace-pre-line mb-4">
                       {formatDescription(playlist.description)}
                     </p>
-                    <div className="flex justify-center items-center gap-2 text-[#b3b3b3] text-sm">
+                    <div className="flex justify-center sm:justify-start items-center gap-2 text-[#b3b3b3] text-sm">
                       <span className="font-medium">Created by LazyDJ</span>
                       <span>•</span>
                       <span>{playlist.tracks.items.length} songs</span>

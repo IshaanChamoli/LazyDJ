@@ -40,3 +40,24 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #ffffff60;
 }
+
+/* Add these mobile-specific styles */
+@media (max-width: 640px) {
+  .mobile-login-container {
+    min-height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .mobile-main-container {
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .mobile-pre-playlist {
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+}

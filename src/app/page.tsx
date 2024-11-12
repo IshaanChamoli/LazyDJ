@@ -39,10 +39,10 @@ const SearchParamsComponent = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-[#121212] text-white ${!user ? 'flex items-center justify-center' : ''}`}>
+    <div className={`min-h-screen bg-[#121212] text-white ${!user ? 'mobile-login-container' : 'mobile-main-container'}`}>
       <main className="w-full max-w-3xl mx-auto px-4">
         {user ? (
-          <div className="text-center space-y-12 pt-16">
+          <div className={`text-center space-y-12 pt-16 ${!hasCreatedPlaylist ? 'mobile-pre-playlist' : ''}`}>
             <div className="mb-12">
               <h1 className="text-5xl font-bold mb-2">LazyDJ</h1>
               <p className="text-[#1DB954] text-lg font-medium">No Effort, Just Vibes</p>
