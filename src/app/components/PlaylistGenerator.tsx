@@ -70,6 +70,88 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
     setPlaylist(null);
     
     try {
+      // Check for the rickroll trigger (case insensitive)
+      if (prompt.toLowerCase() === 'will you ever let me down?') {
+        // Force a delay for dramatic effect
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
+        // Create a playlist with just Never Gonna Give You Up
+        const response = await fetch('https://api.spotify.com/v1/me', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get user profile');
+        }
+        
+        const userData = await response.json();
+        
+        // Create the playlist
+        const createPlaylistResponse = await fetch(
+          `https://api.spotify.com/v1/users/${userData.id}/playlists`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: 'From LazyDJ <3',
+              description: 'Never gonna give you up, never gonna let you down...',
+              public: false
+            })
+          }
+        );
+
+        if (!createPlaylistResponse.ok) {
+          throw new Error('Failed to create playlist');
+        }
+
+        const playlist = await createPlaylistResponse.json();
+
+        // The exact 7 versions from the image
+        const rickrollVersions = [
+          'spotify:track:4uLU6hMCjMI75M1A2tKUQC',  // Rick Astley - Original
+          'spotify:track:5lqyFiWl0lGeyGVRStD3Ai',  // Jean Elan, Francesco Diaz
+          'spotify:track:7AQ2YeJaabjcVI3ap7zwQM',  // Hazlett
+          'spotify:track:5fnDDcjcXKUvJ6iSnpiU0v',  // Mac Beez
+          'spotify:track:1nP5uKJMRZYcXptsY7s76o',  // Spencer Kane
+          'spotify:track:4dJYjR2lM6SmYfLw2mnHvb',  // Radio Club
+          'spotify:track:0B4D61uWfBiCvvTVRFA27q',  // TripL
+        ];
+
+        await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            uris: rickrollVersions
+          })
+        });
+
+        // Get the final playlist with full track details
+        const finalPlaylistResponse = await fetch(
+          `https://api.spotify.com/v1/playlists/${playlist.id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            }
+          }
+        );
+
+        const finalPlaylist = await finalPlaylistResponse.json();
+        setPlaylist(finalPlaylist);
+        setPrompt('');
+        setSuccess(true);
+        onPlaylistCreated();
+        return;
+      }
+
+      // Normal playlist generation logic continues...
       const response = await fetch('/api/generate-playlist', {
         method: 'POST',
         headers: {
