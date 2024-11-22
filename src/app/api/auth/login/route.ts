@@ -20,9 +20,11 @@ export async function GET() {
     'playlist-modify-private'
   ].join(' ');
 
-  const redirectUri = process.env.NODE_ENV === 'production'
-    ? 'https://lazydj.vercel.app/api/auth/callback/spotify'
-    : 'http://localhost:3000/api/auth/callback/spotify';
+  const redirectUri = process.env.SPOTIFY_REDIRECT_URI || (
+    process.env.NODE_ENV === 'production'
+      ? 'https://lazydj.vercel.app/api/auth/callback/spotify'
+      : 'http://localhost:3000/api/auth/callback/spotify'
+  );
 
   const params = new URLSearchParams({
     response_type: 'code',
