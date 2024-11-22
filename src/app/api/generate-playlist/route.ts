@@ -9,7 +9,7 @@ export const runtime = 'edge';
 
 export async function POST(request: Request) {
   try {
-    const { prompt, accessToken } = await request.json();
+    const { prompt, accessToken, topTracks } = await request.json();
 
     if (!prompt || !accessToken) {
       return NextResponse.json(
@@ -17,6 +17,46 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Add detailed console logging of the entire prompt
+    console.log('\n=== COMPLETE PROMPT TO CHATGPT ===\n');
+    console.log('=== SYSTEM PROMPT ===');
+    console.log(`You are a music expert DJ that creates personalized playlists. 
+You will receive:
+1. A user's request describing the type of playlist they want
+2. A list of their most listened to tracks (for context about their music taste)
+
+IMPORTANT GUIDELINES:
+- The user's request is your TOP PRIORITY. Focus primarily on matching their specific request
+- Use their top tracks only as subtle inspiration, not as main playlist content
+- DO NOT include more than 2-3 songs from their top tracks list, and only if they naturally fit the request
+- If their request doesn't align with their listening history, IGNORE their top tracks completely
+- You may recommend other songs from artists in their top tracks, but ONLY IF those songs make sense in the context of the user's request
+- Aim to discover new songs that match their request, rather than using their known favorites
+
+Respond with exactly 15 songs in this JSON format:
+{
+  "songs": [
+    { "title": "Song Name" }
+  ]
+}`);
+
+    console.log('\n=== USER PROMPT ===');
+    console.log(`User Request: "${prompt}"`);
+    
+    console.log('\n=== USER\'S TOP TRACKS ===');
+    topTracks.slice(0, 50).forEach((track, i) => {
+      console.log(`${i + 1}. "${track.name}" by ${track.artists.map(a => a.name).join(', ')}`);
+    });
+
+    console.log('\n=== REMINDER TO GPT ===');
+    console.log(`Remember: 
+- Focus primarily on the user's request
+- Only include a maximum of 2-3 songs from their top tracks IF they naturally fit
+- You can suggest other songs from their favorite artists IF they match the request perfectly
+- Prioritize discovering new songs that match their request`);
+
+    console.log('\n=== END OF PROMPT ===\n');
 
     // First get the user's Spotify ID
     console.log('Getting user profile...');
@@ -79,17 +119,46 @@ export async function POST(request: Request) {
 
     // Then get song suggestions from OpenAI
     try {
+      const systemPrompt = `You are a music expert DJ that creates personalized playlists. 
+You will receive:
+1. A user's request describing the type of playlist they want
+2. A list of their most listened to tracks (for context about their music taste)
+
+IMPORTANT GUIDELINES:
+- The user's request is your TOP PRIORITY. Focus primarily on matching their specific request
+- Use their top tracks only as subtle inspiration, not as main playlist content
+- DO NOT include more than 2-3 songs from their top tracks list, and only if they naturally fit the request
+- If their request doesn't align with their listening history, IGNORE their top tracks completely
+- You may recommend other songs from artists in their top tracks, but ONLY IF those songs perfectly match the user's request
+- Aim to discover new songs that match their request, rather than using their known favorites
+
+Respond with exactly 15 songs in this JSON format:
+{
+  "songs": [
+    { "title": "Song Name" }
+  ]
+}`;
+
+      const userPrompt = `User Request: "${prompt}"
+
+Their Top Tracks (for context only):
+${topTracks.slice(0, 50).map((track, i) => 
+  `${i + 1}. "${track.name}" by ${track.artists.map(a => a.name).join(', ')}`
+).join('\n')}
+
+Remember: 
+- Focus primarily on the user's request
+- Only include a maximum of 2-3 songs from their top tracks IF they naturally fit
+- You can suggest other songs from their favorite artists IF they match the request perfectly
+- Prioritize discovering new songs that match their request`;
+
       const completion = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
         model: "gpt-3.5-turbo",
-        messages: [{
-          role: "system",
-          content: "You are a music expert. Generate a list of exactly 25 songs that match the given description taking into consideration the mood and feeling it conveys as well as the lyrics sometimes. Your response must be a valid JSON object with a 'songs' array containing exactly 25 songs. Use this exact format: {\"songs\": [{\"title\": \"song name\", \"artist\": \"artist name\"}, ...]}. Include exactly 25 songs in the array with no repeated songs."
-        }, {
-          role: "user",
-          content: prompt
-        }],
         temperature: 0.7,
-        response_format: { type: "json_object" }
       });
 
       if (!completion.choices[0].message.content) {
@@ -179,6 +248,12 @@ export async function POST(request: Request) {
       }
 
       const finalPlaylist = await finalPlaylistResponse.json();
+
+      // Add excited completion message
+      console.log('\n🎉 ============================== 🎉');
+      console.log('🎵 PLAYLIST CREATION COMPLETE!!! 🎵');
+      console.log(`✨ FOUND ${foundTracks.length} OUT OF ${songList.length} TRACKS! ✨`);
+      console.log('🎉 ============================== 🎉\n');
 
       // Return success with the complete playlist data
       return NextResponse.json({ 

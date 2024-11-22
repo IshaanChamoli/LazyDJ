@@ -49,4 +49,5 @@ export interface PlaylistGeneratorProps {
   accessToken: string;
   onPlaylistCreated: () => void;
   onReset: () => void;
+  topTracks?: Track[];
 } 

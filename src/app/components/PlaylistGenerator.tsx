@@ -9,13 +9,14 @@ interface PlaylistResponse {
   playlist: Playlist;
 }
 
-export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onReset }: PlaylistGeneratorProps) {
+export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onReset, topTracks = [] }: PlaylistGeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingDots, setLoadingDots] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
+  const [randomTracks, setRandomTracks] = useState<Track[]>([]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -33,6 +34,32 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
     return () => clearInterval(interval);
   }, [isLoading]);
 
+  useEffect(() => {
+    if (!isLoading || !topTracks.length) return;
+
+    // Initial set of 5 random tracks
+    setRandomTracks([...topTracks]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 5));
+
+    const interval = setInterval(() => {
+      setRandomTracks(prev => {
+        const newTracks = [...topTracks]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5);
+        // Ensure we get different tracks than the previous set
+        if (prev.every(track => newTracks.some(newTrack => newTrack.id === track.id))) {
+          return [...topTracks]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 5);
+        }
+        return newTracks;
+      });
+    }, 3000); // Changed from 4000 to 3000ms (3 seconds)
+
+    return () => clearInterval(interval);
+  }, [isLoading, topTracks]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
@@ -48,7 +75,11 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt, accessToken }),
+        body: JSON.stringify({ 
+          prompt, 
+          accessToken,
+          topTracks
+        }),
       });
 
       const data = await response.json();
@@ -257,6 +288,51 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
     );
   };
 
+  const renderLoadingState = () => {
+    if (!topTracks || topTracks.length === 0) return null;
+
+    return (
+      <div className="mt-6 text-[#b3b3b3] bg-[#282828]/50 rounded-lg p-4 sm:p-6 animate-fade-in">
+        <div className="mb-6 px-2">
+          <p className="text-sm font-medium text-[#1DB954] mb-1">
+            Analyzing Your Music Taste
+          </p>
+          <p className="text-xs text-[#b3b3b3]/75">
+            Using your favorite tracks to enhance recommendations
+          </p>
+        </div>
+        <div className="space-y-2.5 relative">
+          {randomTracks.map((track, index) => (
+            <div 
+              key={`${track.id}-${index}`}
+              className="flex items-center gap-2 sm:gap-3 text-sm opacity-0 animate-slide-fade-in px-2"
+              style={{
+                animationDelay: `${index * 100}ms`,
+                animationFillMode: 'forwards'
+              }}
+            >
+              <div className="w-6 h-6 sm:w-5 sm:h-5 relative flex-shrink-0">
+                <Image
+                  src={track.album.images[0].url}
+                  alt={track.name}
+                  fill
+                  className="rounded object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <span className="truncate font-medium text-left">{track.name}</span>
+                <div className="hidden sm:flex sm:items-center text-sm text-[#b3b3b3]/75">
+                  <span className="text-[#b3b3b3]/50 mx-2">•</span>
+                  <span className="truncate">{track.artists[0].name}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       {success ? (
@@ -294,35 +370,38 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
           )}
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Tell LazyDJ what kind of playlist you want..."
-              className="flex-1 bg-[#3E3E3E] text-white px-4 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="bg-[#1DB954] text-white px-6 py-3 rounded-full font-medium hover:bg-[#1ed760] transition-colors disabled:opacity-50 whitespace-nowrap min-w-[160px] relative"
-            >
-              {isLoading ? (
-                <span className="flex justify-center items-center">
-                  <span>Generating</span>
-                  <span className="w-[24px] text-left">{loadingDots}</span>
-                </span>
-              ) : (
-                'Create Playlist'
-              )}
-            </button>
-          </div>
+        <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Tell LazyDJ what kind of playlist you want..."
+                className="flex-1 bg-[#3E3E3E] text-white px-4 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-[#1DB954]"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="bg-[#1DB954] text-white px-6 py-3 rounded-full font-medium hover:bg-[#1ed760] transition-colors disabled:opacity-50 whitespace-nowrap min-w-[160px] relative"
+              >
+                {isLoading ? (
+                  <span className="flex justify-center items-center">
+                    <span>Generating</span>
+                    <span className="w-[24px] text-left">{loadingDots}</span>
+                  </span>
+                ) : (
+                  'Create Playlist'
+                )}
+              </button>
+            </div>
+          </form>
           {error && (
             <p className="text-red-500 text-sm text-center">{error}</p>
           )}
-        </form>
+          {isLoading && topTracks && topTracks.length > 0 && renderLoadingState()}
+        </div>
       )}
     </div>
   );

@@ -17,7 +17,8 @@ export async function GET() {
     'playlist-read-private',
     'playlist-read-collaborative',
     'playlist-modify-public',
-    'playlist-modify-private'
+    'playlist-modify-private',
+    'user-top-read'
   ].join(' ');
 
   const redirectUri = process.env.SPOTIFY_REDIRECT_URI || (

@@ -3,13 +3,14 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PlaylistGenerator from './components/PlaylistGenerator';
-import { User } from './types/spotify';
+import { User, Track } from './types/spotify';
 import Image from 'next/image';
 
 // Separate the component that uses useSearchParams
 const SearchParamsComponent = () => {
   const [user, setUser] = useState<User | null>(null);
   const [hasCreatedPlaylist, setHasCreatedPlaylist] = useState(false);
+  const [topTracks, setTopTracks] = useState<Track[]>([]);
   const searchParams = useSearchParams();
   const accessToken = searchParams.get('access_token');
   const authError = searchParams.get('auth_error');
@@ -31,7 +32,42 @@ const SearchParamsComponent = () => {
       }
     };
 
-    fetchUserProfile();
+    const fetchTopTracks = async () => {
+      try {
+        const response = await fetch(
+          'https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=long_term',
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        
+        if (!response.ok) {
+          console.log('Failed to fetch top tracks');
+          return;
+        }
+        
+        const data = await response.json();
+        const validTracks = data.items.filter((track: Track) => 
+          track && 
+          track.name && 
+          track.artists && 
+          track.album && 
+          track.album.images && 
+          track.album.images.length > 0
+        );
+        
+        setTopTracks(validTracks);
+      } catch (error) {
+        console.log('Error fetching top tracks');
+      }
+    };
+
+    if (accessToken) {
+      fetchUserProfile();
+      fetchTopTracks();
+    }
   }, [accessToken]);
 
   const handlePlaylistReset = () => {
@@ -40,8 +76,8 @@ const SearchParamsComponent = () => {
 
   return (
     <div className={`min-h-screen bg-[#121212] text-white ${!user ? 'mobile-login-container' : 'mobile-main-container'}`}>
-      <main className="w-full max-w-3xl mx-auto px-4">
-        {user ? (
+      {user ? (
+        <main className="max-w-3xl mx-auto px-4">
           <div className={`text-center space-y-12 pt-16 ${!hasCreatedPlaylist ? 'mobile-pre-playlist' : ''}`}>
             <div className="mb-12">
               <h1 className="text-5xl font-bold mb-2">LazyDJ</h1>
@@ -72,33 +108,34 @@ const SearchParamsComponent = () => {
               accessToken={accessToken!} 
               onPlaylistCreated={() => setHasCreatedPlaylist(true)}
               onReset={handlePlaylistReset}
+              topTracks={topTracks}
             />
           </div>
-        ) : (
-          <div className="centered-container bg-[#121212] text-white flex flex-col justify-center min-h-screen">
-            <div className="text-center space-y-6 mb-8">
-              <h1 className="text-7xl font-bold">LazyDJ</h1>
-              <p className="text-[#1DB954] text-2xl font-medium">No Effort, Just Vibes</p>
-              <p className="text-[#b3b3b3] text-lg">
-                Your AI-powered playlist creator for Spotify
-              </p>
-            </div>
-            <div className="flex flex-col items-center gap-4">
-              <a
-                href="/api/auth/login"
-                className="inline-block bg-[#1DB954] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#1ed760] transition-all transform hover:scale-105 duration-200"
-              >
-                Login with Spotify
-              </a>
-              {authError && (
-                <p className="text-red-500 text-sm">
-                  Could not log in. Please try again.
-                </p>
-              )}
-            </div>
+        </main>
+      ) : (
+        <div className="centered-container bg-[#121212] text-white flex flex-col justify-center min-h-screen">
+          <div className="text-center space-y-6 mb-8">
+            <h1 className="text-7xl font-bold">LazyDJ</h1>
+            <p className="text-[#1DB954] text-2xl font-medium">No Effort, Just Vibes</p>
+            <p className="text-[#b3b3b3] text-lg">
+              Your AI-powered playlist creator for Spotify
+            </p>
           </div>
-        )}
-      </main>
+          <div className="flex flex-col items-center gap-4">
+            <a
+              href="/api/auth/login"
+              className="inline-block bg-[#1DB954] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#1ed760] transition-all transform hover:scale-105 duration-200"
+            >
+              Login with Spotify
+            </a>
+            {authError && (
+              <p className="text-red-500 text-sm">
+                Could not log in. Please try again.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
