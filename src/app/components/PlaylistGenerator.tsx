@@ -244,29 +244,59 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
 
     return (
       <div className="w-full h-full grid grid-cols-2 grid-rows-2">
-        {albumCovers.map((url, index) => (
-          <div key={`cover-${index}`} className="overflow-hidden relative w-full h-full bg-[#282828]">
-            <div 
-              className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300" 
-              id={`shimmer-cover-${index}`}
-            />
-            <Image 
-              src={url} 
-              alt="Album cover"
-              fill
-              className="object-cover transition-opacity duration-300 z-20"
-              loading="lazy"
-              onLoadingComplete={(image) => {
-                image.classList.remove('opacity-0');
-                image.classList.add('opacity-100');
-                const shimmer = document.getElementById(`shimmer-cover-${index}`);
-                if (shimmer) {
-                  shimmer.style.opacity = '0';
-                }
-              }}
-            />
-          </div>
-        ))}
+        {albumCovers.map((url, index) => {
+          // Get smaller image URL by modifying the Spotify image URL
+          const smallImageUrl = url.replace(/\/(\w+)\.jpg/, '/small_$1.jpg');
+          
+          return (
+            <div key={`cover-${index}`} className="overflow-hidden relative w-full h-full bg-[#282828]">
+              <div 
+                className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300" 
+                id={`shimmer-cover-${index}`}
+              />
+              {/* First load a small blurry version */}
+              <Image 
+                src={smallImageUrl}
+                alt="Album cover preview"
+                fill
+                className="object-cover transition-opacity duration-300 z-20 blur-sm"
+                loading="eager"
+                onError={(e) => {
+                  // If small image fails, fallback to original URL
+                  const img = e.target as HTMLImageElement;
+                  img.src = url;
+                }}
+              />
+              {/* Then load the full quality version */}
+              <Image 
+                src={url} 
+                alt="Album cover"
+                fill
+                className="object-cover transition-opacity duration-300 z-30"
+                loading="lazy"
+                onLoadingComplete={(image) => {
+                  image.classList.remove('opacity-0');
+                  image.classList.add('opacity-100');
+                  const shimmer = document.getElementById(`shimmer-cover-${index}`);
+                  if (shimmer) {
+                    shimmer.style.opacity = '0';
+                  }
+                }}
+                onError={(e) => {
+                  // Implement retry logic
+                  const img = e.target as HTMLImageElement;
+                  const retryCount = Number(img.dataset.retryCount || 0);
+                  if (retryCount < 3) {
+                    setTimeout(() => {
+                      img.dataset.retryCount = String(retryCount + 1);
+                      img.src = url + '?retry=' + retryCount; // Force reload by adding query param
+                    }, 1000 * (retryCount + 1)); // Exponential backoff
+                  }
+                }}
+              />
+            </div>
+          );
+        })}
         {/* Fill remaining slots with placeholder if less than 4 covers */}
         {[...Array(4 - albumCovers.length)].map((_, index) => (
           <div key={`cover-placeholder-${index}`} className="bg-[#282828]" />
@@ -307,37 +337,47 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
               {index + 1}
             </span>
             <div className="relative w-10 h-10 bg-[#282828] rounded overflow-hidden">
-              {item.track.album?.images?.[0]?.url ? (
+              {item.track.album?.images?.[0]?.url && (
                 <>
-                  {/* Shimmer placeholder effect that disappears when image loads */}
                   <div 
                     className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300" 
-                    id={`shimmer-${item.track.id}`}
+                    id={`shimmer-track-${item.track.id}`}
                   />
+                  {/* Load small version first */}
+                  <Image 
+                    src={item.track.album.images[item.track.album.images.length - 1]?.url || item.track.album.images[0].url} 
+                    alt={item.track.name}
+                    fill
+                    className="object-cover transition-opacity duration-300 z-20 blur-sm"
+                    loading="eager"
+                  />
+                  {/* Then load full quality */}
                   <Image 
                     src={item.track.album.images[0].url} 
                     alt={item.track.name}
                     fill
-                    className="rounded object-cover transition-opacity duration-300 z-20"
+                    className="object-cover transition-opacity duration-300 z-30"
                     loading="lazy"
                     onLoadingComplete={(image) => {
                       image.classList.remove('opacity-0');
                       image.classList.add('opacity-100');
-                      // Hide the shimmer effect
-                      const shimmer = document.getElementById(`shimmer-${item.track.id}`);
+                      const shimmer = document.getElementById(`shimmer-track-${item.track.id}`);
                       if (shimmer) {
                         shimmer.style.opacity = '0';
                       }
                     }}
+                    onError={(e) => {
+                      const img = e.target as HTMLImageElement;
+                      const retryCount = Number(img.dataset.retryCount || 0);
+                      if (retryCount < 3) {
+                        setTimeout(() => {
+                          img.dataset.retryCount = String(retryCount + 1);
+                          img.src = item.track.album.images[0].url + '?retry=' + retryCount;
+                        }, 1000 * (retryCount + 1));
+                      }
+                    }}
                   />
                 </>
-              ) : (
-                // Music note icon placeholder
-                <div className="w-full h-full flex items-center justify-center text-[#b3b3b3]">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                  </svg>
-                </div>
               )}
             </div>
             <div className="flex items-center gap-4 min-w-0 text-left">

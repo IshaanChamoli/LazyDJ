@@ -92,10 +92,17 @@ const SearchParamsComponent = () => {
                       id={`shimmer-profile-${user.id}`}
                     />
                     <Image
+                      src={user.images[user.images.length - 1]?.url || user.images[0].url}
+                      alt={user.display_name}
+                      fill
+                      className="rounded-full border-2 border-[#282828] shadow-lg object-cover transition-opacity duration-300 z-20 blur-sm"
+                      loading="eager"
+                    />
+                    <Image
                       src={user.images[0].url}
                       alt={user.display_name}
                       fill
-                      className="rounded-full border-2 border-[#282828] shadow-lg object-cover transition-opacity duration-300 z-20"
+                      className="rounded-full border-2 border-[#282828] shadow-lg object-cover transition-opacity duration-300 z-30"
                       loading="lazy"
                       onLoadingComplete={(image) => {
                         image.classList.remove('opacity-0');
@@ -103,6 +110,16 @@ const SearchParamsComponent = () => {
                         const shimmer = document.getElementById(`shimmer-profile-${user.id}`);
                         if (shimmer) {
                           shimmer.style.opacity = '0';
+                        }
+                      }}
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        const retryCount = Number(img.dataset.retryCount || 0);
+                        if (retryCount < 3) {
+                          setTimeout(() => {
+                            img.dataset.retryCount = String(retryCount + 1);
+                            img.src = user.images[0].url + '?retry=' + retryCount;
+                          }, 1000 * (retryCount + 1));
                         }
                       }}
                     />
