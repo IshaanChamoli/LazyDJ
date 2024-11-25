@@ -33,6 +33,7 @@ IMPORTANT GUIDELINES:
 - If their request doesn't align with their listening history, IGNORE their top tracks completely
 - You may recommend other songs from artists in their top tracks, but ONLY IF those songs make sense in the context of the user's request
 - Aim to discover new songs that match their request, rather than using their known favorites
+- Ensure that all 15 songs in the playlist are unique; do not repeat any songs.
 
 Respond with exactly 15 songs in this JSON format:
 {
@@ -131,6 +132,7 @@ IMPORTANT GUIDELINES:
 - If their request doesn't align with their listening history, IGNORE their top tracks completely
 - You may recommend other songs from artists in their top tracks, but ONLY IF those songs perfectly match the user's request
 - Aim to discover new songs that match their request, rather than using their known favorites
+- Ensure that all 15 songs in the playlist are unique; do not repeat any songs.
 
 Respond with exactly 15 songs in this JSON format:
 {
