@@ -86,15 +86,25 @@ const SearchParamsComponent = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
                 {user.images?.[0]?.url && (
-                  <div className="relative w-8 h-8 bg-[#282828] rounded-full">
+                  <div className="relative w-8 h-8 bg-[#282828] rounded-full overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300" 
+                      id={`shimmer-profile-${user.id}`}
+                    />
                     <Image
                       src={user.images[0].url}
                       alt={user.display_name}
                       fill
-                      className="rounded-full border-2 border-[#282828] shadow-lg object-cover"
+                      className="rounded-full border-2 border-[#282828] shadow-lg object-cover transition-opacity duration-300 z-20"
                       loading="lazy"
-                      placeholder="blur"
-                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAyVC08MTY3LjIyOUFTRjo/Tj4yMkhiSk46PDtBRUpGSjpNTUpGQEH/2wBDAQUXFx4aHR4eHUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                      onLoadingComplete={(image) => {
+                        image.classList.remove('opacity-0');
+                        image.classList.add('opacity-100');
+                        const shimmer = document.getElementById(`shimmer-profile-${user.id}`);
+                        if (shimmer) {
+                          shimmer.style.opacity = '0';
+                        }
+                      }}
                     />
                   </div>
                 )}

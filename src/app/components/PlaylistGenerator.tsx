@@ -246,14 +246,24 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
       <div className="w-full h-full grid grid-cols-2 grid-rows-2">
         {albumCovers.map((url, index) => (
           <div key={`cover-${index}`} className="overflow-hidden relative w-full h-full bg-[#282828]">
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300" 
+              id={`shimmer-cover-${index}`}
+            />
             <Image 
               src={url} 
               alt="Album cover"
               fill
-              className="object-cover"
+              className="object-cover transition-opacity duration-300 z-20"
               loading="lazy"
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAyVC08MTY3LjIyOUFTRjo/Tj4yMkhiSk46PDtBRUpGSjpNTUpGQEH/2wBDAQUXFx4aHR4eHUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+              onLoadingComplete={(image) => {
+                image.classList.remove('opacity-0');
+                image.classList.add('opacity-100');
+                const shimmer = document.getElementById(`shimmer-cover-${index}`);
+                if (shimmer) {
+                  shimmer.style.opacity = '0';
+                }
+              }}
             />
           </div>
         ))}
@@ -296,17 +306,38 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
             <span className="text-[#b3b3b3] group-hover:text-white text-sm text-right">
               {index + 1}
             </span>
-            <div className="w-10 h-10 bg-[#282828] relative rounded">
-              {item.track.album?.images?.[0]?.url && (
-                <Image 
-                  src={item.track.album.images[0].url} 
-                  alt={item.track.name}
-                  fill
-                  className="rounded shadow-lg object-cover"
-                  loading="lazy"
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAyVC08MTY3LjIyOUFTRjo/Tj4yMkhiSk46PDtBRUpGSjpNTUpGQEH/2wBDAQUXFx4aHR4eHUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                />
+            <div className="relative w-10 h-10 bg-[#282828] rounded overflow-hidden">
+              {item.track.album?.images?.[0]?.url ? (
+                <>
+                  {/* Shimmer placeholder effect that disappears when image loads */}
+                  <div 
+                    className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300" 
+                    id={`shimmer-${item.track.id}`}
+                  />
+                  <Image 
+                    src={item.track.album.images[0].url} 
+                    alt={item.track.name}
+                    fill
+                    className="rounded object-cover transition-opacity duration-300 z-20"
+                    loading="lazy"
+                    onLoadingComplete={(image) => {
+                      image.classList.remove('opacity-0');
+                      image.classList.add('opacity-100');
+                      // Hide the shimmer effect
+                      const shimmer = document.getElementById(`shimmer-${item.track.id}`);
+                      if (shimmer) {
+                        shimmer.style.opacity = '0';
+                      }
+                    }}
+                  />
+                </>
+              ) : (
+                // Music note icon placeholder
+                <div className="w-full h-full flex items-center justify-center text-[#b3b3b3]">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                  </svg>
+                </div>
               )}
             </div>
             <div className="flex items-center gap-4 min-w-0 text-left">
@@ -388,15 +419,26 @@ export default function PlaylistGenerator({ accessToken, onPlaylistCreated, onRe
                 animationFillMode: 'forwards'
               }}
             >
-              <div className="w-6 h-6 sm:w-5 sm:h-5 relative flex-shrink-0 bg-[#282828] rounded">
+              <div className="w-6 h-6 sm:w-5 sm:h-5 relative flex-shrink-0 bg-[#282828] rounded overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-gradient-to-r from-[#282828] via-[#383838] to-[#282828] animate-shimmer z-10 transition-opacity duration-300"
+                  id={`shimmer-loading-${track.id}`}
+                />
                 <Image
                   src={track.album.images[0].url}
                   alt={track.name}
                   fill
-                  className="rounded object-cover"
+                  className="rounded object-cover transition-opacity duration-300 z-20"
                   loading="lazy"
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSAyVC08MTY3LjIyOUFTRjo/Tj4yMkhiSk46PDtBRUpGSjpNTUpGQEH/2wBDAQUXFx4aHR4eHUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUH/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                  onLoadingComplete={(image) => {
+                    image.classList.remove('opacity-0');
+                    image.classList.add('opacity-100');
+                    // Hide the shimmer effect
+                    const shimmer = document.getElementById(`shimmer-loading-${track.id}`);
+                    if (shimmer) {
+                      shimmer.style.opacity = '0';
+                    }
+                  }}
                 />
               </div>
               <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-2">

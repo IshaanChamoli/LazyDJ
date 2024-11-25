@@ -127,3 +127,28 @@ body {
     }
   }
 }
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Update the img styles */
+img {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  position: relative; /* Ensure z-index works */
+}
+
+img.opacity-100 {
+  opacity: 1;
+}
